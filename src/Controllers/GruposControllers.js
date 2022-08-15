@@ -1,6 +1,8 @@
 'use strict'
 
 const db = require("../Models");
+const ValidationContract = require("../Validator/validation-contract");
+
 const Grupos = db.Grupos;
 const Op = db.Sequelize.Op;
 
@@ -24,15 +26,15 @@ exports.GetAll = (req, res) => {
 
 // Find a single Tutorial with an id
 exports.Get = (req, res) => {
-  const id = req.params.id;
+  const GruposID = req.params.GruposID;
 
-  Grupos.findByPk(id)
+  Grupos.findByPk(GruposID)
     .then(data => {
       if (data) {
         res.status(200).send(data);
       } else {
         res.status(404).send({
-          message: `Não consiguimos encontrar uma chave id=${id}. com esta caracteristicas`
+          message: `Não consiguimos encontrar uma chave id=${GruposID}. com esta caracteristicas`
         });
       }
     })
@@ -49,10 +51,9 @@ exports.Get = (req, res) => {
 exports.Guardar = (req, res, next) => {
 
   // Validate request
-  if (!req.body.Descricao) {
-    res.status(400).send({
-      message: "Este campo não permite valores nulos!"
-    });
+  ValidationContract.isRequired(req.body.Descricao, "Este campo não permite valores nulos!");
+  if (!ValidationContract.isValid()) {
+    res.status(400).send(ValidationContract.errors()).end();
     return;
   }
 

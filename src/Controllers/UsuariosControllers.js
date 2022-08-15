@@ -24,22 +24,22 @@ exports.GetAll = (req, res) => {
 
 // Find a single Tutorial with an id
 exports.Get = (req, res) => {
-  const id = req.params.id;
+  const UsuariosID = req.params.UsuariosID;
 
-  Usuarios.findByPk(id)
+  Usuarios.findByPk(UsuariosID)
     .then(data => {
       if (data) {
         res.status(200).send(data);
       } else {
         res.status(404).send({
-          message: `Não consiguimos encontrar uma chave id=${id}. com esta caracteristicas`
+          message: `Não consiguimos encontrar uma chave id=${UsuariosID}. com esta caracteristicas`
         });
       }
     })
     .catch(err => {
       res.status(500).send({
         message:
-        err.message || "Erro ao buscar com esta chave =" + id
+        err.message || "Erro ao buscar com esta chave =" + UsuariosID
       });
     });
 };

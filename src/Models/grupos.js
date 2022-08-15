@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Grupos.init({
+    GruposID:  DataTypes.INTEGER,
     Descricao: DataTypes.STRING,
     Comentario: DataTypes.STRING,
     Detalhes: DataTypes.STRING

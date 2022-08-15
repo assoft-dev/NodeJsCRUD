@@ -21,3 +21,17 @@ npx sequelize-cli db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
 npx sequelize-cli seed:generate --name demo-user
 
 npx sequelize-cli db:seed:all
+
+include: [{
+    models: Loja,
+    attributes: ['Descricao']
+}]
+
+
+echo "# NodeJsCRUD" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/assoft-dev/NodeJsCRUD.git
+git push -u origin main

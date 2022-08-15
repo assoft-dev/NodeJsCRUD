@@ -10,17 +10,20 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.belongsTo(models.Grupos, { foreignKey: "GruposID", onDelete: 'cascade' });
     }
   }
   Usuarios.init({
+    UsuariosID: DataTypes.INTEGER,
     FullName: DataTypes.STRING,
     LastName: DataTypes.STRING,
     Login: DataTypes.STRING,
     Password: DataTypes.STRING,
     Email: DataTypes.STRING,
-    Data: DataTypes.DATE
-  }, {
+    Data: DataTypes.DATE,
+    GruposID: DataTypes.INTEGER
+  }, 
+  {
     sequelize,
     modelName: 'Usuarios',
   });

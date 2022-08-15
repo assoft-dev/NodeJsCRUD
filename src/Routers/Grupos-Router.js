@@ -3,7 +3,8 @@
 //Chamada dos controllers
 const grupocontroller = require("../Controllers/GruposControllers");
 
-const route = require("express").Router();
+const express = require('express')
+const route = express.Router()
 
 route.get("/", grupocontroller.GetAll);
 route.get("/:id", grupocontroller.Get);

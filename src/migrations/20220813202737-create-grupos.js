@@ -2,14 +2,20 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Grupos', {
-      id: {
+      GruposID: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
       Descricao: {
-        type: Sequelize.STRING
+        allowNull: false,
+        type: Sequelize.STRING,
+        validator:{
+          notEmpty:{
+              msg:"Este campo Descrião não permite nullo"
+          }
+        }
       },
       Comentario: {
         type: Sequelize.STRING

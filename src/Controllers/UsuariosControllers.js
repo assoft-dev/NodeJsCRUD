@@ -1,150 +1,137 @@
 'use strict'
 
-const { Grupos } = require("../Models");
-const db = require("../Models");
-const Usuarios = db.Usuarios;
-const Op = db.Sequelize.Op;
+const ValidationContract = require("../Validator/validation-contract");
+const usuariosRepository = require("../Repository/UsuariosRepository");
 
-// Buscar toda informação no banco de dados.
-exports.GetAll = (req, res) => {
-  const FullName = req.query.FullName;
-  var condition = FullName ? { FullName: { [Op.like]: `%${FullName}%` } } : null;
-
-  Usuarios.findAll({ where: condition, include: { model: Grupos, as: 'Grupos' } })
-    .then(data => {
-      res.send(data);
+//Buscar toda informação no banco de dados.
+exports.GetAll = async (req, res, next) => {
+  try {
+    var data = await usuariosRepository.GetAll(req.query.FullName);
+    res.status(200).send(data);
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Não foi possivel buscar a informação solicitada."
-      });
-    });
+  }
 };
 
 // Find a single Tutorial with an id
-exports.Get = (req, res) => {
-  const UsuariosID = req.params.id;
+exports.Get = async (req, res) => {
 
-  Usuarios.findByPk(UsuariosID, {include: { model: Grupos, as: 'Grupos' } } )
-    .then(data => {
-      if (data) {
-        res.status(200).send(data);
-      } else {
-        res.status(404).send({
-          message: `Não consiguimos encontrar uma chave id=${UsuariosID}. com esta caracteristicas`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Erro ao buscar com esta chave =" + UsuariosID
+  try {
+    const UsuariosID = req.params.id;
+    var data = await usuariosRepository.Get(UsuariosID)
+    if (data) {
+      res.status(200).send(data);
+    } else {
+      res.status(404).send({
+        message: `Não consiguimos encontrar a informação solicitada `,
+        Data: {data},
+        validate: false,
       });
-    });
+    }
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
+    })
+  }
 };
 
-
 // Create and Save a new Tutorial
-exports.Guardar = (req, res, next) => {
+exports.Guardar = async (req, res, next) => {
 
   // Validate request
-  if (!req.body.Descricao) {
-    res.status(400).send({
-      message: "Este campo não permite valores nulos!"
-    });
+  ValidationContract.isRequired(req.body.FullName, "Este campo não permite valores nulos!");
+  if (!ValidationContract.isValid()) {
+    res.status(400).send(ValidationContract.errors).end();
     return;
   }
 
   // Criar o Modelo
-  const model = {
+  const usuarios = {
     FullName: req.body.FullName,
     LastName: req.body.LastName,
     Login: req.body.Login,
     Password: req.body.Password,
     Email: req.body.Email,
     Data: req.body.Data,
-    GrupoID: req.body.Data,
+    Login: req.body.Login
   };
 
   // Save Tutorial in the database
-  Usuarios.create(model)
-    .then(data => {
-      res.send(data);
+  try {
+    var data = await usuariosRepository.SaveData(usuarios)
+    res.status(200).send(data);
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Erro algo tenha acontecido ao crear o Grupo."
-      });
-    });
+  }
 };
 
 // Update a Tutorial by the id in the request
-exports.Atualuzar = (req, res) => {
-  const id = req.params.id;
-
-  Usuarios.update(req.body, {
-    where: { UsuariosID: UsuariosID }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.status(200).send({
-          message: req.body
-        });
-      } else {
-        res.send({
-          message: `Não conseguimos atualizar com esta licença=${id}. Maybe Tutorial was not found or req.body is empty!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Erro na na Atualização da informação=" + id
+exports.Atualuzar = async (req, res) => {
+  try {
+    const id = req.params.id;
+    var data = await usuariosRepository.UpdateData(req.body, id);
+    if (data == 1) {
+      res.status(200).send({ message: req.body });
+    } else {
+      res.status(404).send({
+        message: `Não conseguimos atualizar a informação solicitada!`
       });
-    });
+    }
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
+    })
+  }
 };
 
 // Delete a Tutorial with the specified id in the request
-exports.Apagar = (req, res) => {
-  const UsuariosID = req.params.id;
+exports.Apagar = async (req, res) => {
 
-  Usuarios.destroy({
-    where: { UsuariosID: UsuariosID }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "Informação Solicitada foi apagada com exito!"
-        });
-      } else {
-        res.send({
-          message: `Não foi possivel inserir apagar com a chave id=${id}. Não foi encomtrado!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Não conseguimos apagar od dados com a chave id=" + id
+  try {
+    const id = req.params.id;
+    var data = await usuariosRepository.Delete(id)
+    if (num == 1) {
+      res.send({
+        message: "Informação Solicitada foi apagada com exito!"
       });
+    } else {
+      res.status(404).send({
+        message: `Não foi possivel apagar a solicitação id =${id}. [Não foi encomtrado]!`
+      });
+    } 
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     });
+  }
 };
 
 // Delete all Tutorials from the database.
-exports.ApagarAll = (req, res) => {
-  Usuarios.destroy({
-    where: {},
-    truncate: false
-  })
-    .then(nums => {
-      res.send({ message: `${nums} Foram apagadas todas as informações!` });
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Não foi possivel apagar toda a informação."
+exports.ApagarAll = async (req, res) => {
+  try {
+    var data = await usuariosRepository.DeleteAll();
+    if (data == 1) {
+      res.send({
+        message: "A informação Solicitada foi apagada com exito!"
       });
+    } else {
+      res.status(404).send({
+        message: `Não foi possivel apagar a solicitação id=${id}. [Não foi encomtrado]!`
+      });
+    } 
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     });
+  }
 };

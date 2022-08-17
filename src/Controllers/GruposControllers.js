@@ -1,5 +1,6 @@
 'use strict'
 
+const { Usuarios } = require("../Models");
 const db = require("../Models");
 const ValidationContract = require("../Validator/validation-contract");
 
@@ -11,7 +12,7 @@ exports.GetAll = (req, res) => {
   const descricao = req.query.Descricao;
   var condition = descricao ? { Descricao: { [Op.like]: `%${descricao}%` } } : null;
 
-  Grupos.findAll({ where: condition })
+  Grupos.findAll({ where: condition, include: Usuarios})
     .then(data => {
       res.send(data);
     })
@@ -26,9 +27,9 @@ exports.GetAll = (req, res) => {
 
 // Find a single Tutorial with an id
 exports.Get = (req, res) => {
-  const GruposID = req.params.GruposID;
+  const GruposID = req.params.id;
 
-  Grupos.findByPk(GruposID)
+  Grupos.findByPk(GruposID, { include: Usuarios})
     .then(data => {
       if (data) {
         res.status(200).send(data);
@@ -53,7 +54,7 @@ exports.Guardar = (req, res, next) => {
   // Validate request
   ValidationContract.isRequired(req.body.Descricao, "Este campo não permite valores nulos!");
   if (!ValidationContract.isValid()) {
-    res.status(400).send(ValidationContract.errors()).end();
+    res.status(400).send(ValidationContract.errors).end();
     return;
   }
 

@@ -1,7 +1,9 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
+const grupos = require('./grupos');
 module.exports = (sequelize, DataTypes) => {
   class Usuarios extends Model {
     /**
@@ -10,11 +12,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.belongsTo(models.Grupos, { foreignKey: "GruposID", onDelete: 'cascade' });
     }
   }
   Usuarios.init({
-    UsuariosID: DataTypes.INTEGER,
+    UsuariosID: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
     FullName: DataTypes.STRING,
     LastName: DataTypes.STRING,
     Login: DataTypes.STRING,
@@ -22,10 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     Email: DataTypes.STRING,
     Data: DataTypes.DATE,
     GruposID: DataTypes.INTEGER
-  }, 
-  {
-    sequelize,
-    modelName: 'Usuarios',
-  });
+  },
+    {
+      sequelize,
+      modelName: 'Usuarios',
+    });
   return Usuarios;
 };

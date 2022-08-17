@@ -3,6 +3,7 @@
 const {
   Model
 } = require('sequelize');
+const usuarios = require('./usuarios');
 module.exports = (sequelize, DataTypes) => {
   class Grupos extends Model {
     /**
@@ -11,11 +12,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      //Grupos.hasMany(models.Usuarios)
     }
   }
   Grupos.init({
-    GruposID:  DataTypes.INTEGER,
+    GruposID: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
     Descricao: DataTypes.STRING,
     Comentario: DataTypes.STRING,
     Detalhes: DataTypes.STRING

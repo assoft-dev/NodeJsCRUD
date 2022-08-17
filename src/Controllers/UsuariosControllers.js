@@ -1,5 +1,6 @@
 'use strict'
 
+const { Grupos } = require("../Models");
 const db = require("../Models");
 const Usuarios = db.Usuarios;
 const Op = db.Sequelize.Op;
@@ -9,13 +10,12 @@ exports.GetAll = (req, res) => {
   const FullName = req.query.FullName;
   var condition = FullName ? { FullName: { [Op.like]: `%${FullName}%` } } : null;
 
-  Usuarios.findAll({ where: condition })
+  Usuarios.findAll({ where: condition, include: { model: Grupos, as: 'Grupos' } })
     .then(data => {
       res.send(data);
     })
     .catch(err => {
       res.status(500).send({
-
         message:
           err.message || "Não foi possivel buscar a informação solicitada."
       });
@@ -39,7 +39,7 @@ exports.Get = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-        err.message || "Erro ao buscar com esta chave =" + UsuariosID
+          err.message || "Erro ao buscar com esta chave =" + UsuariosID
       });
     });
 };
@@ -101,7 +101,7 @@ exports.Atualuzar = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-        err.message || "Erro na na Atualização da informação=" + id
+          err.message || "Erro na na Atualização da informação=" + id
       });
     });
 };
@@ -127,14 +127,14 @@ exports.Apagar = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-        err.message || "Não conseguimos apagar od dados com a chave id=" + id
+          err.message || "Não conseguimos apagar od dados com a chave id=" + id
       });
     });
 };
 
 // Delete all Tutorials from the database.
 exports.ApagarAll = (req, res) => {
-    Usuarios.destroy({
+  Usuarios.destroy({
     where: {},
     truncate: false
   })

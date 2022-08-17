@@ -7,6 +7,7 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
+exports.db = db;
 
 let sequelize;
 if (config.use_env_variable) {
@@ -34,7 +35,13 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-db.Grupos = require("./grupos.js")(sequelize, Sequelize);
+
+//Enidades
 db.Usuarios = require("./usuarios.js")(sequelize, Sequelize);
+db.Grupos = require("./grupos.js")(sequelize, Sequelize);
+
+//Relacoes entre entidades
+db.Usuarios.belongsTo(db.Grupos, { foreignKey: 'GruposID', constraints: true, as: 'Grupos' });
+db.Grupos.hasMany(db.Usuarios, { foreignKey: 'GruposID', });
 
 module.exports = db;

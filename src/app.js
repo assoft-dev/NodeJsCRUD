@@ -17,13 +17,11 @@ app.use("/", Index_router);
 app.use("/api/grupos", grupos_router);
 app.use("/api/usuarios", usuarios_router);
 
-
 const conect = require("./Models");
 
 // conect.Grupos.sync({ alter: true });
 // conect.Usuarios.sync({ alter: true });
 
-
-conect.sequelize.sync({ alter: true });
+//conect.sequelize.sync({ alter: true });
 
 module.exports = app;

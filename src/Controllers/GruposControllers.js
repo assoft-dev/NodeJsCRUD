@@ -1,55 +1,44 @@
 'use strict'
 
-const { Usuarios } = require("../Models");
-const db = require("../Models");
 const ValidationContract = require("../Validator/validation-contract");
+const grupoRepository = require("../Repository/GruposRepository.js");
 
-const Grupos = db.Grupos;
-const Op = db.Sequelize.Op;
-
-// Buscar toda informação no banco de dados.
-exports.GetAll = (req, res) => {
-  const descricao = req.query.Descricao;
-  var condition = descricao ? { Descricao: { [Op.like]: `%${descricao}%` } } : null;
-
-  Grupos.findAll({ where: condition, include: Usuarios})
-    .then(data => {
-      res.send(data);
+//Buscar toda informação no banco de dados.
+exports.GetAll = async (req, res, next) => {
+  try {
+    var data = await grupoRepository.GetAll(req.query.Descricao);
+    res.status(200).send(data);
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     })
-    .catch(err => {
-      res.status(500).send({
-
-        message:
-          err.message || "Não foi possivel buscar a informação solicitada."
-      });
-    });
+  }
 };
 
 // Find a single Tutorial with an id
-exports.Get = (req, res) => {
-  const GruposID = req.params.id;
+exports.Get = async (req, res) => {
 
-  Grupos.findByPk(GruposID, { include: Usuarios})
-    .then(data => {
-      if (data) {
-        res.status(200).send(data);
-      } else {
-        res.status(404).send({
-          message: `Não consiguimos encontrar uma chave id=${GruposID}. com esta caracteristicas`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-        err.message || "Erro ao buscar com esta chave =" + id
+  try {
+    const GruposID = req.params.id;
+    var data = await grupoRepository.Get(GruposID)
+    if (data) {
+      res.status(200).send(data);
+    } else {
+      res.status(404).send({
+        message: `Não consiguimos encontrar a informação solicitada`
       });
-    });
+    }
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
+    })
+  }
 };
 
-
 // Create and Save a new Tutorial
-exports.Guardar = (req, res, next) => {
+exports.Guardar = async (req, res, next) => {
 
   // Validate request
   ValidationContract.isRequired(req.body.Descricao, "Este campo não permite valores nulos!");
@@ -66,83 +55,77 @@ exports.Guardar = (req, res, next) => {
   };
 
   // Save Tutorial in the database
-  Grupos.create(grupos)
-    .then(data => {
-      res.send(data);
+  try {
+    var data = await grupoRepository.SaveData(grupos)
+    res.status(200).send(data);
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Erro algo tenha acontecido ao crear o Grupo."
-      });
-    });
+  }
 };
 
 // Update a Tutorial by the id in the request
-exports.Atualuzar = (req, res) => {
-  const id = req.params.id;
-
-  Grupos.update(req.body, {
-    where: { id: id }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.status(200).send({
-          message: req.body
-        });
-      } else {
-        res.send({
-          message: `Não conseguimos atualizar com esta licença=${id}. Maybe Tutorial was not found or req.body is empty!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-        err.message || "Erro na na Atualização da informação=" + id
+exports.Atualuzar = async (req, res) => {
+  try {
+    const id = req.params.id;
+    var data = await grupoRepository.UpdateData(req.body, id);
+    if (data == 1) {
+      res.status(200).send({ message: req.body });
+    } else {
+      res.status(404).send({
+        message: `Não conseguimos atualizar a informação solicitada!`
       });
-    });
+    }
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
+    })
+  }
 };
 
 // Delete a Tutorial with the specified id in the request
-exports.Apagar = (req, res) => {
-  const id = req.params.id;
+exports.Apagar = async (req, res) => {
 
-  Grupos.destroy({
-    where: { id: id }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "Informação Solicitada foi apagada com exito!"
-        });
-      } else {
-        res.send({
-          message: `Não foi possivel inserir apagar com a chave id=${id}. Não foi encomtrado!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-        err.message || "Não conseguimos apagar od dados com a chave id=" + id
+  try {
+    const id = req.params.id;
+    var data = await grupoRepository.Delete(id)
+    if (num == 1) {
+      res.send({
+        message: "Informação Solicitada foi apagada com exito!"
       });
+    } else {
+      res.status(404).send({
+        message: `Não foi possivel apagar a solicitação id=${id}. [Não foi encomtrado]!`
+      });
+    } 
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     });
+  }
 };
 
 // Delete all Tutorials from the database.
-exports.ApagarAll = (req, res) => {
-  Grupos.destroy({
-    where: {},
-    truncate: false
-  })
-    .then(nums => {
-      res.send({ message: `${nums} Foram apagadas todas as informações!` });
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Não foi possivel apagar toda a informação."
+exports.ApagarAll = async (req, res) => {
+  try {
+    var data = await grupoRepository.DeleteAll();
+    if (data == 1) {
+      res.send({
+        message: "A informação Solicitada foi apagada com exito!"
       });
+    } else {
+      res.status(404).send({
+        message: `Não foi possivel apagar a solicitação id=${id}. [Não foi encomtrado]!`
+      });
+    } 
+  } catch (e) {
+    res.status(500).send({
+      message:
+        e.message || "Falha ao processar sua requisição "
     });
+  }
 };

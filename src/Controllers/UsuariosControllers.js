@@ -24,9 +24,9 @@ exports.GetAll = (req, res) => {
 
 // Find a single Tutorial with an id
 exports.Get = (req, res) => {
-  const UsuariosID = req.params.UsuariosID;
+  const UsuariosID = req.params.id;
 
-  Usuarios.findByPk(UsuariosID)
+  Usuarios.findByPk(UsuariosID, {include: { model: Grupos, as: 'Grupos' } } )
     .then(data => {
       if (data) {
         res.status(200).send(data);
@@ -85,7 +85,7 @@ exports.Atualuzar = (req, res) => {
   const id = req.params.id;
 
   Usuarios.update(req.body, {
-    where: { id: id }
+    where: { UsuariosID: UsuariosID }
   })
     .then(num => {
       if (num == 1) {
@@ -108,10 +108,10 @@ exports.Atualuzar = (req, res) => {
 
 // Delete a Tutorial with the specified id in the request
 exports.Apagar = (req, res) => {
-  const id = req.params.id;
+  const UsuariosID = req.params.id;
 
   Usuarios.destroy({
-    where: { id: id }
+    where: { UsuariosID: UsuariosID }
   })
     .then(num => {
       if (num == 1) {

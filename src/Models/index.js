@@ -35,13 +35,12 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-
 //Enidades
 db.Usuarios = require("./usuarios.js")(sequelize, Sequelize);
 db.Grupos = require("./grupos.js")(sequelize, Sequelize);
 
-//Relacoes entre entidades
-db.Usuarios.belongsTo(db.Grupos, { foreignKey: 'GruposID', constraints: true, as: 'Grupos' });
+//Relacoes entre entidades [Usuario (varios) => Grupo (1)]
+db.Usuarios.belongsTo(db.Grupos, { foreignKey: 'GruposID', constraints: true, as: 'Grupos', onDelet: 'CASCADE' });
 db.Grupos.hasMany(db.Usuarios, { foreignKey: 'GruposID', });
 
 module.exports = db;

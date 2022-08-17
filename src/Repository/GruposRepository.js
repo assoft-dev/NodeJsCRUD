@@ -26,14 +26,14 @@ exports.SaveData = async (param) => {
 
 exports.UpdateData = async (body, id) => {
     const res = await Grupos.update(body, {
-        where: { id: id }
+        where: { GruposID: id }
     });
     return res;
 };
 
 exports.Delete = async (id) => {
     const res = await Grupos.destroy({
-        where: { id: id }
+        where: { GruposID: id }
     });
     return res;;
 };

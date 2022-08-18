@@ -2,6 +2,8 @@
 
 const ValidationContract = require("../Validator/validation-contract");
 const usuariosRepository = require("../Repository/UsuariosRepository");
+const md5 = require("md5");
+var emailServices = require('../Services/EmailServices')
 
 //Buscar toda informação no banco de dados.
 exports.GetAll = async (req, res, next) => {
@@ -54,15 +56,24 @@ exports.Guardar = async (req, res, next) => {
     FullName: req.body.FullName,
     LastName: req.body.LastName,
     Login: req.body.Login,
-    Password: req.body.Password,
+    Password: md5(req.body.Password + global.SALT_KEY),
     Email: req.body.Email,
     Data: req.body.Data,
-    Login: req.body.Login
+    GruposID: req.body.GruposID,
   };
 
   // Save Tutorial in the database
   try {
     var data = await usuariosRepository.SaveData(usuarios)
+
+    //Envio de Email para o Usuarios.
+    emailServices.Sender(
+      req.body.Email,
+      'Bem vindo ao nosso Sistema',
+      global.EMAIL_TMPL.replace("{0}",
+      req.body.FullName)
+    );
+
     res.status(200).send(data);
   } catch (e) {
     res.status(500).send({

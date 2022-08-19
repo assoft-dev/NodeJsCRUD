@@ -108,24 +108,3 @@ exports.Apagar = async (req, res) => {
     });
   }
 };
-
-// Delete all Tutorials from the database.
-exports.ApagarAll = async (req, res) => {
-  try {
-    var data = await grupoRepository.DeleteAll();
-    if (data == 1) {
-      res.send({
-        message: "A informação Solicitada foi apagada com exito!"
-      });
-    } else {
-      res.status(404).send({
-        message: `Não foi possivel apagar a solicitação id=${id}. [Não foi encomtrado]!`
-      });
-    } 
-  } catch (e) {
-    res.status(500).send({
-      message:
-        e.message || "Falha ao processar sua requisição "
-    });
-  }
-};

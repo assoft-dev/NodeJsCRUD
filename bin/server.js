@@ -1,5 +1,6 @@
 'use strict'
 
+const debug = require('debug')('asinforprest:server');
 const app = require("../src/app");
 const http = require("http");
 
@@ -10,7 +11,8 @@ app.set("port", port);
 const server = http.createServer(app);
 
 server.listen(port);
-server.on("error", OnError)
+server.on("error", OnError);
+server.on('listening', onListening);
 console.log("API rodando na porta " + port);
 
 function normalizePort(val) {
@@ -50,4 +52,12 @@ function OnError(error) {
     }
 
 }
+
+function onListening() {
+    const addr = server.address();
+    const bind = typeof addr === 'string'
+      ? 'pipe ' + addr
+      : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+  }
 

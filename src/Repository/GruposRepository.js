@@ -37,11 +37,3 @@ exports.Delete = async (id) => {
     });
     return res;;
 };
-
-exports.DeleteAll = async () => {
-    const res = await Grupos.destroy({
-        where: {},
-        truncate: false
-    });
-    return res;
-};

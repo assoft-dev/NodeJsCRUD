@@ -20,6 +20,14 @@ exports.Get = async (param) => {
     return res;
 };
 
+exports.Authenticate = async (param) => {
+    const res = await usuarios.findOne({ 
+        where: { Email: param.Email, Password: param.Password }, include: {
+            model: Grupos, as: 'Grupos'
+        } }, );
+    return res;
+};
+
 exports.SaveData = async (param) => {
     const res = await usuarios.create(param);
     return res;
@@ -37,12 +45,4 @@ exports.Delete = async (id) => {
         where: { UsuariosID : id }
     });
     return res;;
-};
-
-exports.DeleteAll = async () => {
-    const res = await usuarios.destroy({
-        where: {},
-        truncate: false
-    });
-    return res;
 };
